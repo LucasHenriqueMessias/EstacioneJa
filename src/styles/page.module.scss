@@ -1,0 +1,81 @@
+.container {
+    display: flex;
+    flex-direction: row; /* Organiza os elementos em linha */
+    justify-content: center;
+    align-items: flex-start;
+    height: 100vh;
+    padding: 2rem;
+    gap: 2rem; /* Espaçamento entre o formulário e a lista */
+
+    form {
+        width: 100%;
+        max-width: 400px; /* Ajusta a largura do formulário */
+        background: #ffffff;
+        padding: 2rem;
+        border-radius: 0.8rem;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        text-align: center;
+
+        input, textarea, select {
+            width: 100%;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            border-radius: 0.5rem;
+            font-size: 1rem;
+        }
+
+        textarea {
+            resize: none;
+        }
+
+        button {
+            padding: 1rem;
+            width: 100%;
+            max-width: 200px;
+            background: #4caf50;
+            color: #ffffff;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: background 0.3s ease;
+
+            &:hover {
+                background: #45a049;
+            }
+        }
+    }
+
+    .tableCars {
+        width: 100%;
+        max-width: 800px; /* Ajusta a largura da lista */
+        background: #f9f9f9;
+        padding: 2rem;
+        border-radius: 0.8rem;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        overflow-y: auto;
+        max-height: 80vh; /* Ajusta a altura máxima */
+
+        input {
+            width: 100%;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            border-radius: 0.5rem;
+            font-size: 1rem;
+        }
+    }
+
+    .carCard {
+        background: #ffffff;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Adiciona sombra */
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+}
