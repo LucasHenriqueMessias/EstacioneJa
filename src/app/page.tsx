@@ -19,6 +19,7 @@ import styles from '../styles/page.module.scss';
 import { database } from '../../services/firebase';
 import { push, ref, onValue, set } from 'firebase/database';
 import { useEffect, useState } from 'react';
+import * as XLSX from 'xlsx';
 
 type Carro = {
   id: string;
@@ -33,29 +34,30 @@ export default function Home() {
 
   const [carro, setCarro] = useState('');
   const [placa, setPlaca] = useState('');
-  const [entrada, setEntrada] = useState('');
   const [saida, setSaida] = useState('');
   const [tempoPermanencia, setTempoPermanencia] = useState('');
   const [carros, setCarros] = useState<Carro[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [editMode, setEditMode] = useState(false);
-  const [editId, setEditId] = useState<string | null>(null);
 
   useEffect(() => {
     const refCarros = ref(database, 'carros');
 
     onValue(refCarros, (snapshot) => {
-      const data = Object.entries(snapshot.val() || {}).map(([key, value]: [string, any]) => {
-        return {
-          'id': key,
-          'carro': value.carro,
-          'placa': value.placa,
-          'entrada': value.entrada,
-          'saida': value.saida,
-          'tempoPermanencia': value.tempoPermanencia
-        };
-      });
-      setCarros(data);
+      const data = Object.entries(snapshot.val() || {}).map(([key, value]) => {
+        const typedValue = value as { carro?: string; placa?: string; entrada?: string; saida?: string; tempoPermanencia?: string };
+        if (typedValue && typeof typedValue === 'object') {
+          return {
+            id: key,
+            carro: typedValue.carro || '',
+            placa: typedValue.placa || '',
+            entrada: typedValue.entrada || '',
+            saida: typedValue.saida || '',
+            tempoPermanencia: typedValue.tempoPermanencia || ''
+          };
+        }
+        return null;
+      }).filter(Boolean);
+      setCarros(data as Carro[]);
     }, (error) => {
       console.error('Erro ao ler os dados do Firebase:', error);
     });
@@ -65,7 +67,6 @@ export default function Home() {
     e.preventDefault();
     const now = new Date();
     const formattedDate = `${now.getHours()}:${now.getMinutes()} ${now.getDate()}/${now.getMonth() + 1}/${now.getFullYear()}`;
-    setEntrada(formattedDate);
 
     const carroData = {
       carro,
@@ -82,7 +83,6 @@ export default function Home() {
     // Limpa os valores do formulário
     setCarro('');
     setPlaca('');
-    setEntrada('');
     setSaida('');
     setTempoPermanencia('');
   };
@@ -119,6 +119,16 @@ export default function Home() {
     
       });
     };
+
+  const handleDownload = () => {
+    const worksheet = XLSX.utils.json_to_sheet(carros);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Carros');
+
+    // Gera o arquivo e inicia o download
+    XLSX.writeFile(workbook, 'export_estacionamento.xlsx');
+  };
+
   const filteredCarros = carros.filter((carro) =>
     carro.carro.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -127,9 +137,9 @@ export default function Home() {
     <>
       <main className={styles.container}>
         <form>
-          <input type="text" placeholder="Carro" value={carro} onChange={e => setCarro(e.target.value)}></input>
+          <input type="text" placeholder="Veiculo" value={carro} onChange={e => setCarro(e.target.value)}></input>
           <input type="text" placeholder="Placa" value={placa} onChange={e => setPlaca(e.target.value)}></input>
-          <button type="submit" onClick={handleAddVehicle}>{editMode ? "Salvar Alterações" : "Adicionar Veículo"}</button>
+          <button type="submit" onClick={handleAddVehicle}>Adicionar Veículo</button>
         </form>
         <div className={styles.tableCars}>
           <input
@@ -138,6 +148,7 @@ export default function Home() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           ></input>
+          <button onClick={handleDownload}>Download Tabela</button>
           {filteredCarros.map((carro) => {
             return (
               <div key={carro.id} className={styles.carCard}>
